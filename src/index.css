@@ -1,0 +1,271 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Courier+Prime:wght@400;700&family=Inter:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap');
+
+@layer base {
+  :root {
+    /* Default to Modern */
+    --color-primary: #3b82f6;
+    --color-secondary: #64748b;
+    --color-accent: #0ea5e9;
+    --color-background: #f8fafc;
+    --color-surface: #ffffff;
+    --color-text: #0f172a;
+    --color-muted: #94a3b8;
+    --font-primary: 'Inter', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-overlay: rgba(255, 255, 255, 0.95);
+    --card-texture: none;
+    --border-style: solid;
+    --radius: 0.5rem;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .theme-rustic {
+    --color-primary: #78350f;
+    --color-secondary: #92400e;
+    --color-accent: #d97706;
+    --color-background: #fef3c7;
+    --color-surface: #fffbeb;
+    --color-text: #451a03;
+    --color-muted: #b45309;
+    --font-primary: 'Merriweather', serif;
+    --font-secondary: 'Playfair Display', serif;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture:
+      repeating-linear-gradient(90deg, rgba(120, 53, 15, 0.03) 0px, transparent 2px, transparent 40px, rgba(120, 53, 15, 0.03) 42px),
+      repeating-linear-gradient(0deg, rgba(120, 53, 15, 0.03) 0px, transparent 2px, transparent 40px, rgba(120, 53, 15, 0.03) 42px),
+      linear-gradient(90deg, #fef3c7, #fde68a);
+    --bg-overlay: rgba(254, 243, 199, 0.85);
+    --card-texture: url('https://www.transparenttextures.com/patterns/old-map.png');
+    --border-style: double;
+    --radius: 0.125rem;
+    --shadow:
+      0 1px 3px 0 rgba(69, 26, 3, 0.3),
+      inset 0 0 0 1px rgba(217, 119, 6, 0.1);
+  }
+
+  .theme-modern {
+    --color-primary: #2563eb;
+    --color-secondary: #475569;
+    --color-accent: #06b6d4;
+    --color-background: #e0f2fe;
+    /* Slightly richer blue for glass contrast */
+    --color-surface: rgba(255, 255, 255, 0.4);
+    /* Glass transparency */
+    --color-text: #1e293b;
+    --color-muted: #64748b;
+    --font-primary: 'Inter', sans-serif;
+    --font-secondary: 'Inter', sans-serif;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture:
+      radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.3) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.3) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.3) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.3) 0px, transparent 50%),
+      linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    --bg-overlay: transparent;
+    --card-texture: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1));
+    --card-blur: blur(12px);
+    /* Glassmorphism blur */
+    --border-style: solid;
+    --radius: 1rem;
+    --shadow:
+      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    /* Icy border */
+  }
+
+  .theme-grandma {
+    --color-primary: #be123c;
+    --color-secondary: #a21caf;
+    --color-accent: #f43f5e;
+    --color-background: #fff1f2;
+    --color-surface: #fff;
+    --color-text: #881337;
+    --color-muted: #fda4af;
+    --font-primary: 'Caveat', cursive;
+    --font-secondary: 'Caveat', cursive;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture:
+      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(190, 18, 60, 0.03) 10px, rgba(190, 18, 60, 0.03) 20px),
+      repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(162, 28, 175, 0.03) 10px, rgba(162, 28, 175, 0.03) 20px),
+      url('https://www.transparenttextures.com/patterns/little-pluses.png'),
+      linear-gradient(180deg, #fff1f2 0%, #fce7f3 100%);
+    --bg-overlay: rgba(255, 241, 242, 0.75);
+    --card-texture:
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="20" cy="20" r="15" fill="%23fda4af" opacity="0.1"/><circle cx="80" cy="80" r="20" fill="%23f43f5e" opacity="0.08"/></svg>'),
+      linear-gradient(white, white);
+    --card-blur: none;
+    --border-style: dashed;
+    --radius: 0px;
+    --shadow:
+      3px 3px 0px rgba(190, 18, 60, 0.2),
+      6px 6px 0px rgba(253, 164, 175, 0.1);
+  }
+
+  .theme-zen {
+    --color-primary: #3f6212;
+    --color-secondary: #57534e;
+    --color-accent: #65a30d;
+    --color-background: #f5f5f4;
+    --color-surface: #fafaf9;
+    --color-text: #292524;
+    --color-muted: #a8a29e;
+    --font-primary: 'Lato', sans-serif;
+    --font-secondary: 'Lato', sans-serif;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture:
+      url('https://www.transparenttextures.com/patterns/leaves.png'),
+      /* Plant texture */
+      linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(245, 245, 244, 0.8));
+    --bg-overlay: rgba(245, 245, 244, 0.6);
+    --card-texture:
+      url('https://www.transparenttextures.com/patterns/rice-paper-2.png'),
+      linear-gradient(to bottom right, rgba(255, 255, 255, 0.9), rgba(250, 250, 249, 0.8));
+    --card-blur: blur(12px);
+    --border-style: solid;
+    --radius: 1.5rem;
+    --shadow:
+      0 4px 20px -2px rgba(63, 98, 18, 0.1),
+      0 0 0 1px rgba(63, 98, 18, 0.05);
+  }
+
+  .theme-dark-academia {
+    --color-primary: #fbbf24;
+    --color-secondary: #78350f;
+    --color-accent: #d97706;
+    --color-background: #0c0a09;
+    --color-surface: #1c1917;
+    --color-text: #e7e5e4;
+    --color-muted: #a8a29e;
+    --font-primary: 'Courier Prime', monospace;
+    --font-secondary: 'Playfair Display', serif;
+    --font-handwriting: 'Caveat', cursive;
+    --bg-texture:
+      url('https://www.transparenttextures.com/patterns/leather3.png'),
+      /* Rich leather texture */
+      radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.2) 0%, transparent 70%),
+      linear-gradient(to bottom, #1c1917, #0c0a09);
+    --bg-overlay: rgba(12, 10, 9, 0.6);
+    --card-texture:
+      linear-gradient(135deg, rgba(41, 37, 36, 0.95), rgba(28, 25, 23, 0.98)),
+      url('https://www.transparenttextures.com/patterns/leather3.png');
+    /* Leather texture on cards */
+    --card-blur: none;
+    --border-style: solid;
+    --radius: 0.25rem;
+    --shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.2),
+      0 8px 20px -5px rgba(0, 0, 0, 0.7),
+      inset 0 0 15px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Enhanced body with texture overlay */
+body {
+  background: var(--bg-texture);
+  color: var(--color-text);
+  font-family: var(--font-primary);
+  transition: background 500ms ease-in-out, color 500ms ease-in-out;
+  position: relative;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 500ms ease-in-out;
+}
+
+/* Ensure content is above overlay */
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced card styling */
+.themed-card {
+  background: var(--card-texture);
+  backdrop-filter: var(--card-blur, none);
+  /* Apply glass blur if variable exists */
+  -webkit-backdrop-filter: var(--card-blur, none);
+  border-style: var(--border-style);
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: all 300ms ease;
+}
+
+/* Theme-specific decorative elements */
+.theme-rustic .themed-card::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px dashed rgba(120, 53, 15, 0.2);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.theme-grandma .themed-card::after {
+  content: '✿';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--color-muted);
+  font-size: 24px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.theme-zen .themed-card::before {
+  content: '🌿';
+  /* Plant accent */
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  opacity: 0.6;
+  filter: grayscale(0.5);
+}
+
+.theme-dark-academia .themed-card {
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.theme-dark-academia .themed-card::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px solid rgba(251, 191, 36, 0.1);
+  pointer-events: none;
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-muted);
+  --font-primary: var(--font-primary);
+  --font-secondary: var(--font-secondary);
+  --font-handwriting: var(--font-handwriting);
+  --bg-texture: var(--bg-texture);
+  --radius: var(--radius);
+}
