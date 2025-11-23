@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'icon.jpg'],
       manifest: {
         name: 'Chefs Canvas',
         short_name: 'Chefs Canvas',
@@ -19,13 +19,16 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'icon.svg',
+            src: 'icon.jpg',
             sizes: '192x192 512x512',
-            type: 'image/svg+xml',
+            type: 'image/jpeg',
             purpose: 'any maskable'
           }
         ]
       }
     })
   ],
+  // Ensure the JPEG is copied to the dist folder
+  // (Vite will copy any file referenced in includeAssets)
+  // We'll add it to the includeAssets array above.
 })
