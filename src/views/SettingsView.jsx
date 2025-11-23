@@ -2,11 +2,13 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useTheme, THEMES } from '../context/ThemeContext';
-import { Palette, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Palette, ArrowLeft, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SettingsView = () => {
     const { currentTheme, switchTheme } = useTheme();
+    const { currentUser, users, login } = useAuth();
     const navigate = useNavigate();
 
     const themeOptions = [
@@ -56,6 +58,36 @@ const SettingsView = () => {
                 </h1>
                 <div className="w-16"></div>
             </div>
+
+            {/* User Profile (Demo) */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <User size={20} />
+                        Current User (Demo)
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted mb-4">
+                        Switch users to test sharing features.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                        {users.map(user => (
+                            <button
+                                key={user.id}
+                                onClick={() => login(user.id)}
+                                className={`p-3 rounded-theme border text-left flex items-center gap-2 transition-all ${currentUser?.id === user.id
+                                    ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                                    : 'border-muted/20 hover:bg-surface'
+                                    }`}
+                            >
+                                <span className="text-2xl">{user.avatar}</span>
+                                <span className="font-medium text-sm">{user.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Theme Selection */}
             <Card>

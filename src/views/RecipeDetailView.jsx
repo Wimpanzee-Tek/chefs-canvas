@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { getRecipeById, ensureRecipeImage, deleteRecipe } from '../services/recipeService';
+import { getRecipeById, ensureRecipeImage, deleteRecipe, shareRecipe, unshareRecipe } from '../services/recipeService';
+import { getGroupsForUser } from '../services/groupService';
 import { useTheme } from '../context/ThemeContext';
-import { ArrowLeft, Trash2, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { ArrowLeft, Trash2, Loader2, Share2, X, User, Users } from 'lucide-react';
 
 const RecipeDetailView = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { currentTheme } = useTheme();
+    const { currentUser, users } = useAuth();
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [imageGenerating, setImageGenerating] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [userGroups, setUserGroups] = useState([]);
 
     useEffect(() => {
         loadRecipe();
-    }, [id]);
+    }, [id, currentUser]); // Reload if user changes
 
     const loadRecipe = async () => {
         setLoading(true);
@@ -37,6 +42,10 @@ const RecipeDetailView = () => {
             setRecipe(foundRecipe);
         }
 
+        if (currentUser) {
+            setUserGroups(getGroupsForUser(currentUser.id));
+        }
+
         setLoading(false);
     };
 
@@ -45,6 +54,20 @@ const RecipeDetailView = () => {
             deleteRecipe(id);
             navigate('/');
         }
+    };
+
+    const handleShare = (targetType, targetId) => {
+        const updatedRecipe = shareRecipe(recipe.id, targetType, targetId);
+        setRecipe(updatedRecipe);
+    };
+
+    const handleUnshare = (targetType, targetId) => {
+        const updatedRecipe = unshareRecipe(recipe.id, targetType, targetId);
+        setRecipe(updatedRecipe);
+    };
+
+    const isSharedWith = (targetType, targetId) => {
+        return recipe.sharedWith?.some(s => s.type === targetType && s.id === targetId);
     };
 
     if (loading) {
@@ -59,6 +82,8 @@ const RecipeDetailView = () => {
         return null;
     }
 
+    const isOwner = currentUser && recipe.ownerId === currentUser.id;
+
     return (
         <div className="space-y-4 animate-in fade-in duration-500">
             {/* Header Actions */}
@@ -67,9 +92,19 @@ const RecipeDetailView = () => {
                     <ArrowLeft size={20} className="mr-2" />
                     Back
                 </Button>
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
-                    <Trash2 size={16} />
-                </Button>
+                <div className="flex gap-2">
+                    {isOwner && (
+                        <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)}>
+                            <Share2 size={16} className="mr-2" />
+                            Share
+                        </Button>
+                    )}
+                    {isOwner && (
+                        <Button variant="destructive" size="sm" onClick={handleDelete}>
+                            <Trash2 size={16} />
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* Recipe Image */}
@@ -81,12 +116,17 @@ const RecipeDetailView = () => {
                     </div>
                 </Card>
             ) : recipe.generatedImage ? (
-                <div className="rounded-theme overflow-hidden shadow-lg">
+                <div className="rounded-theme overflow-hidden shadow-lg relative">
                     <img
                         src={recipe.generatedImage}
                         alt={recipe.title}
                         className="w-full h-64 object-cover"
                     />
+                    {!isOwner && (
+                        <div className="absolute top-2 right-2 bg-black/50 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm">
+                            Shared with you
+                        </div>
+                    )}
                 </div>
             ) : null}
 
@@ -148,6 +188,78 @@ const RecipeDetailView = () => {
             >
                 Start Cooking Mode
             </Button>
+
+            {/* Share Modal */}
+            {showShareModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto">
+                        <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-surface z-10">
+                            <CardTitle>Share Recipe</CardTitle>
+                            <button onClick={() => setShowShareModal(false)}>
+                                <X size={20} />
+                            </button>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Share with Groups */}
+                            <div>
+                                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                                    <Users size={16} />
+                                    Your Groups
+                                </h3>
+                                <div className="space-y-2">
+                                    {userGroups.length === 0 ? (
+                                        <p className="text-sm text-muted italic">No groups yet.</p>
+                                    ) : (
+                                        userGroups.map(group => {
+                                            const isShared = isSharedWith('group', group.id);
+                                            return (
+                                                <div key={group.id} className="flex items-center justify-between p-2 rounded-theme border border-muted/20">
+                                                    <span>{group.name}</span>
+                                                    <Button
+                                                        size="sm"
+                                                        variant={isShared ? "outline" : "default"}
+                                                        onClick={() => isShared ? handleUnshare('group', group.id) : handleShare('group', group.id)}
+                                                    >
+                                                        {isShared ? 'Unshare' : 'Share'}
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Share with Users */}
+                            <div>
+                                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                                    <User size={16} />
+                                    Users
+                                </h3>
+                                <div className="space-y-2">
+                                    {users.filter(u => u.id !== currentUser.id).map(user => {
+                                        const isShared = isSharedWith('user', user.id);
+                                        return (
+                                            <div key={user.id} className="flex items-center justify-between p-2 rounded-theme border border-muted/20">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl">{user.avatar}</span>
+                                                    <span>{user.name}</span>
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    variant={isShared ? "outline" : "default"}
+                                                    onClick={() => isShared ? handleUnshare('user', user.id) : handleShare('user', user.id)}
+                                                >
+                                                    {isShared ? 'Unshare' : 'Share'}
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,9 +1,11 @@
 // Mock Recipe Service with "Write-Once" Image Generation Logic
 // This service simulates Firebase Firestore with localStorage
 
+import { getGroupsForUser } from './groupService';
+
 const STORAGE_KEY = 'chameleon_recipes';
 
-// Mock data
+// Mock data with ownerId
 const INITIAL_RECIPES = [
     {
         id: '1',
@@ -30,8 +32,10 @@ const INITIAL_RECIPES = [
             'Bake 9-11 minutes or until golden brown.'
         ],
         originalSource: 'Family Recipe',
-        generatedImage: null, // Will be generated on first view
-        themeStyleAtCreation: null
+        generatedImage: null,
+        themeStyleAtCreation: null,
+        ownerId: 'user_1',
+        sharedWith: [] // Array of { type: 'user'|'group', id: string }
     },
     {
         id: '2',
@@ -55,7 +59,9 @@ const INITIAL_RECIPES = [
         ],
         originalSource: 'https://example.com/pizza',
         generatedImage: null,
-        themeStyleAtCreation: null
+        themeStyleAtCreation: null,
+        ownerId: 'user_1',
+        sharedWith: []
     }
 ];
 
@@ -67,28 +73,54 @@ const initializeStorage = () => {
     }
 };
 
-// Get all recipes
-export const getRecipes = () => {
+// Get all recipes (internal use)
+const getAllRecipes = () => {
     initializeStorage();
     const data = localStorage.getItem(STORAGE_KEY);
     return JSON.parse(data);
 };
 
+// Get recipes visible to a specific user
+export const getRecipesForUser = (userId) => {
+    const allRecipes = getAllRecipes();
+    const userGroups = getGroupsForUser(userId).map(g => g.id);
+
+    return allRecipes.filter(recipe => {
+        // 1. Owner
+        if (recipe.ownerId === userId) return true;
+
+        // 2. Shared directly with user
+        const sharedWithUser = recipe.sharedWith?.some(s => s.type === 'user' && s.id === userId);
+        if (sharedWithUser) return true;
+
+        // 3. Shared with a group the user is in
+        const sharedWithGroup = recipe.sharedWith?.some(s => s.type === 'group' && userGroups.includes(s.id));
+        if (sharedWithGroup) return true;
+
+        return false;
+    });
+};
+
 // Get single recipe by ID
 export const getRecipeById = (id) => {
-    const recipes = getRecipes();
+    const recipes = getAllRecipes();
     return recipes.find(recipe => recipe.id === id);
 };
 
 // Save/Update recipe
 export const saveRecipe = (recipe) => {
-    const recipes = getRecipes();
+    const recipes = getAllRecipes();
     const index = recipes.findIndex(r => r.id === recipe.id);
 
     if (index !== -1) {
-        recipes[index] = recipe;
+        recipes[index] = { ...recipes[index], ...recipe };
     } else {
+        // New recipe
+        if (!recipe.ownerId) {
+            console.warn("Creating recipe without ownerId!");
+        }
         recipe.id = Date.now().toString();
+        recipe.sharedWith = recipe.sharedWith || [];
         recipes.push(recipe);
     }
 
@@ -96,9 +128,45 @@ export const saveRecipe = (recipe) => {
     return recipe;
 };
 
+// Share recipe
+export const shareRecipe = (recipeId, targetType, targetId) => {
+    const recipes = getAllRecipes();
+    const recipeIndex = recipes.findIndex(r => r.id === recipeId);
+
+    if (recipeIndex !== -1) {
+        const recipe = recipes[recipeIndex];
+        if (!recipe.sharedWith) recipe.sharedWith = [];
+
+        // Check if already shared
+        const exists = recipe.sharedWith.some(s => s.type === targetType && s.id === targetId);
+        if (!exists) {
+            recipe.sharedWith.push({ type: targetType, id: targetId });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+        }
+        return recipe;
+    }
+    return null;
+};
+
+// Unshare recipe
+export const unshareRecipe = (recipeId, targetType, targetId) => {
+    const recipes = getAllRecipes();
+    const recipeIndex = recipes.findIndex(r => r.id === recipeId);
+
+    if (recipeIndex !== -1) {
+        const recipe = recipes[recipeIndex];
+        if (recipe.sharedWith) {
+            recipe.sharedWith = recipe.sharedWith.filter(s => !(s.type === targetType && s.id === targetId));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+        }
+        return recipe;
+    }
+    return null;
+};
+
 // Delete recipe
 export const deleteRecipe = (id) => {
-    const recipes = getRecipes();
+    const recipes = getAllRecipes();
     const filtered = recipes.filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 };

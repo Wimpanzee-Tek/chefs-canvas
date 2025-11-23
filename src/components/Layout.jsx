@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, PlusCircle, ChefHat, Settings } from 'lucide-react';
+import { Home, PlusCircle, ChefHat, Settings, Users } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Layout = ({ children }) => {
@@ -12,8 +12,8 @@ const Layout = ({ children }) => {
     const navItems = [
         { icon: Home, label: 'Home', path: '/' },
         { icon: PlusCircle, label: 'Add', path: '/ingest' },
-        // { icon: ChefHat, label: 'Cook', path: '/cook' }, // Cooking mode is usually per recipe
-        { icon: Settings, label: 'Settings', path: '/settings' }, // For theme switching demo
+        { icon: Users, label: 'Groups', path: '/groups' },
+        { icon: Settings, label: 'Settings', path: '/settings' },
     ];
 
     return (

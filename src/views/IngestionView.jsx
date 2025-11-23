@@ -4,8 +4,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button';
 import { Camera, Link as LinkIcon, ArrowLeft } from 'lucide-react';
 
+import { saveRecipe } from '../services/recipeService';
+import { useAuth } from '../context/AuthContext';
+
 const IngestionView = () => {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [activeTab, setActiveTab] = useState('url'); // 'camera' or 'url'
     const [urlInput, setUrlInput] = useState('');
     const [parsedRecipe, setParsedRecipe] = useState(null);
@@ -54,8 +58,15 @@ const IngestionView = () => {
     };
 
     const handleSaveRecipe = () => {
-        // Would call saveRecipe here
-        alert('Recipe saved! (In production, would save to Firebase)');
+        if (!currentUser) return;
+
+        const newRecipe = {
+            ...parsedRecipe,
+            ownerId: currentUser.id,
+            sharedWith: []
+        };
+
+        saveRecipe(newRecipe);
         navigate('/');
     };
 
@@ -76,8 +87,8 @@ const IngestionView = () => {
                 <button
                     onClick={() => setActiveTab('url')}
                     className={`flex-1 py-3 px-4 rounded-theme font-medium transition-all ${activeTab === 'url'
-                            ? 'bg-primary text-white shadow-md'
-                            : 'text-muted hover:text-text'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'text-muted hover:text-text'
                         }`}
                 >
                     <LinkIcon size={20} className="inline mr-2" />
@@ -86,8 +97,8 @@ const IngestionView = () => {
                 <button
                     onClick={() => setActiveTab('camera')}
                     className={`flex-1 py-3 px-4 rounded-theme font-medium transition-all ${activeTab === 'camera'
-                            ? 'bg-primary text-white shadow-md'
-                            : 'text-muted hover:text-text'
+                        ? 'bg-primary text-white shadow-md'
+                        : 'text-muted hover:text-text'
                         }`}
                 >
                     <Camera size={20} className="inline mr-2" />

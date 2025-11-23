@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import ThemeHeader from '../components/ThemeHeader';
-import { getRecipes } from '../services/recipeService';
-import { Clock } from 'lucide-react';
+import { getRecipesForUser } from '../services/recipeService';
+import { useAuth } from '../context/AuthContext';
+import { Clock, Users } from 'lucide-react';
 
 const HomeView = () => {
+    const { currentUser } = useAuth();
     const [recipes, setRecipes] = useState([]);
 
     useEffect(() => {
-        // Load recipes from service
-        const loadedRecipes = getRecipes();
-        setRecipes(loadedRecipes);
-    }, []);
+        if (currentUser) {
+            const loadedRecipes = getRecipesForUser(currentUser.id);
+            setRecipes(loadedRecipes);
+        }
+    }, [currentUser]);
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -53,6 +56,12 @@ const HomeView = () => {
                                         <span>
                                             {recipe.ingredients?.length || 0} ingredients
                                         </span>
+                                        {recipe.ownerId !== currentUser?.id && (
+                                            <span className="flex items-center gap-1 text-accent ml-auto">
+                                                <Users size={16} />
+                                                Shared
+                                            </span>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
